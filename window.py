@@ -45,6 +45,8 @@ class Index():
 class Window():
 
     def __init__(self, origin, min_index, max_index):
+        if len(origin) == 0:
+            raise InvalidIndex("Cannot make a window from zero-sized origin")
         if min_index < 0:
             raise IndexUnderflow("Min index < 0: %d" % min_index)
         if max_index < 0:
@@ -87,4 +89,11 @@ class Window():
         rpart = Window(self.origin, pindex.index, self.maxx)
         return (lpart, rpart)
 
-
+Window([], 0, 0)
+Window([1], 0, 0)
+Window([1], 0, 1)
+Window([1, 2], 0, 1)
+Window([1, 2, 3], 0, 1)
+Window([1, 2, 3], 0, 6)
+Window([1, 2, 3], 1, 2)
+Window([1, 2, 3], 1, 6)
