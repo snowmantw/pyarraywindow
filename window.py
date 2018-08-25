@@ -27,8 +27,7 @@ class Index():
         if self.index - offset < self.window.minx:
             raise IndexUnderflow("Index expression underflow: %d - %d < %d" % (index, offset, window.minx))
 
-        self.index -= offset
-        return self
+        return Index(self.window, self.index - offset)
 
     def __add__(self, offset):
         # Well python support infinite long number but still get used to do this (from addition to substraction)
@@ -38,8 +37,7 @@ class Index():
         # And if we really need to check overflow, put it here
         # 
         # So that this line don't need to check it again.
-        self.index += offset
-        return self
+        return Index(self.window, self.index + offset)
 
 
 class Window():
@@ -60,6 +58,20 @@ class Window():
         self.maxx = max_index
         self.lenx = max_index - min_index + 1
         self.origin = origin
+        self.iterx = min_index
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if (self.iterx == self.maxx+1):
+          raise StopIteration
+        result = self.origin[self.iterx]
+        self.iterx += 1
+        return result
+
+    def to_array(self):
+        return [ self.origin[i] for i in range(self.minx, self.maxx+1) ]
 
     # For even number, it will be [pivot+1]
     def pivot(self):
@@ -89,11 +101,4 @@ class Window():
         rpart = Window(self.origin, pindex.index, self.maxx)
         return (lpart, rpart)
 
-Window([], 0, 0)
-Window([1], 0, 0)
-Window([1], 0, 1)
-Window([1, 2], 0, 1)
-Window([1, 2, 3], 0, 1)
-Window([1, 2, 3], 0, 6)
-Window([1, 2, 3], 1, 2)
-Window([1, 2, 3], 1, 6)
+
